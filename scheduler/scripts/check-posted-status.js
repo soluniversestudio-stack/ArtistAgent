@@ -4,7 +4,7 @@
  * Sol Studio Automation — Auto-update "Scheduled" → "Posted"
  *
  * Runs HOURLY via Task Scheduler.
- * Finds "Schedulling" Content DB rows where Scheduled Date ≤ now (local time).
+ * Finds "Scheduled" Content DB rows where Scheduled Date ≤ now (local time).
  * Verifies the post is live on Instagram via Meta Graph API.
  * Updates Notion Status → "Posted" when confirmed.
  *
@@ -47,20 +47,20 @@ if (DRY_RUN) console.log("🔍 DRY RUN MODE — No Notion writes.\n");
 
         const nowISO = new Date().toISOString();
 
-        // Find all Schedulling rows where Scheduled Date ≤ now
+        // Find all Scheduled rows where Scheduled Date ≤ now
         const rows = await notionQuery(NOTION_CONTENT_DB_ID, {
             filter: {
                 and: [
-                    { property: "Status",          status: { equals: "Schedulling" } },
+                    { property: "Status",          status: { equals: "Scheduled" } },
                     { property: "Scheduled Date",   date:   { on_or_before: nowISO } }
                 ]
             }
         });
 
-        log(`Found ${rows.length} overdue Schedulling row(s)`);
+        log(`Found ${rows.length} overdue Scheduled row(s)`);
 
         if (rows.length === 0) {
-            console.log("ℹ️  No overdue Schedulling rows.");
+            console.log("ℹ️  No overdue Scheduled rows.");
             return;
         }
 

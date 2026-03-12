@@ -88,7 +88,16 @@ Register-SolTask `
     -Triggers    @($assemblerTrigger) `
     -Description "Handles Asset ready + Rejected rows: parse instruction, scan Drive, select images, crop, create review package"
 
-# ── 2. Check Posted Status — Every hour, 8 AM – midnight local
+# ── 2. Approve to Schedule — every 30 min, 8 AM – midnight local
+#       Handles: "Approved" → "Scheduled"
+$approveTrigger = New-RepeatTrigger -StartAt "8:00AM" -IntervalMinutes 30 -DurationHours 16
+Register-SolTask `
+    -Name        "SolStudio Approve to Schedule" `
+    -ScriptFile  "agent-approve-to-schedule.js" `
+    -Triggers    @($approveTrigger) `
+    -Description "Moves status of Approved rows to Scheduled (they are already queued in Meta API by the assembler)"
+
+# ── 3. Check Posted Status — Every hour, 8 AM – midnight local
 $postedCheckTrigger = New-RepeatTrigger -StartAt "8:00AM" -IntervalMinutes 60 -DurationHours 16
 Register-SolTask `
     -Name        "SolStudio Check Posted Status" `

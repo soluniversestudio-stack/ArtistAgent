@@ -164,6 +164,7 @@ async function cropBatch(items, destDir, ratio = "4:5") {
             const result = await cropImage(item.path, destPath, item.category, ratio);
             results.push({ original: item.path, cropped: result.destPath, strategy: result.strategy });
         } catch (err) {
+            console.error(`Crop failed for ${item.path}: ${err.message}`);
             results.push({ original: item.path, cropped: null, error: err.message, strategy: "failed" });
         }
     }

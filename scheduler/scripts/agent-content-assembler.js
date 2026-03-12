@@ -34,7 +34,6 @@ dotenv.config({ path: ENV_PATH });
 // ─── Local modules ─────────────────────────────────────────────────────────────
 const { isWithinActiveHours, getTimezoneLabel, getLocalTimeString } = require("./timezone-helper");
 const { selectImages, scanForImages }                               = require("./image-selector-ai");
-const { cropBatch }                                                  = require("./smart-crop-autonomous");
 const { uploadImages }                                               = require("./upload-for-posting");
 const { scheduleToMeta }                                             = require("./post-to-instagram");
 const os                                                             = require("os");
@@ -202,32 +201,39 @@ async function processRow(row, results) {
     const confidence = Math.round(avgScore * 100);
 
     if (DRY_RUN) {
-        console.log(`\n   📐 Would crop ${allSelected.length} images to ${ratio} ratio`);
-        console.log(`   📤 Would upload to ImgBB`);
+        console.log(`\n   📐 Would compress and upload ${allSelected.length} images to ImgBB`);
         console.log(`   📅 Would schedule to Meta API for ${schedDate}`);
         console.log(`   🔄 Would update Notion: Status → "Schedulling", Link to Meta → (url)`);
         results.assembled++;
         return;
     }
 
-    // ── 3. Crop images to Temporary Directory ─────────────────────────────────
-    const croppedDir = fs.mkdtempSync(path.join(os.tmpdir(), "sol-crop-"));
-    log(`  Cropping ${allSelected.length} images → ${croppedDir}`);
+    // ── 3. Compress Images to Temporary Directory ─────────────────────────────
+    log(`  Compressing ${allSelected.length} images to reduce upload size...`);
+    const compressedDir = fs.mkdtempSync(path.join(os.tmpdir(), "sol-compress-"));
+    const compressedPaths = [];
+    
+    const sharp = require("sharp");
 
-    const croppedResults = await cropBatch(
-        allSelected.map(img => ({ path: img.path, category: img.category, number: img.number })),
-        croppedDir,
-        ratio
-    );
-
-    const successfulCrops = croppedResults.filter(r => r.cropped);
-    if (successfulCrops.length === 0) {
-        throw new Error("All image crops failed.");
+    for (const img of allSelected) {
+        const ext = path.extname(img.path);
+        const basename = path.basename(img.path, ext);
+        // Force .jpg extension for output
+        const destPath = path.join(compressedDir, `${basename}_compressed.jpg`);
+        
+        await sharp(img.path)
+            // Limit max dimensions to 2160px on longest side to keep file size small
+            // withoutEnlargement prevents upscaling smaller images
+            .resize(2160, 2160, { fit: "inside", withoutEnlargement: true })
+            .jpeg({ quality: 82, progressive: true })
+            .toFile(destPath);
+            
+        compressedPaths.push(destPath);
     }
 
-    // ── 4. Upload to ImgBB ────────────────────────────────────────────────────
-    log(`  Uploading ${successfulCrops.length} cropped images to ImgBB...`);
-    const publicUrls = await uploadImages(successfulCrops.map(r => r.path));
+    // ── 4. Upload Compressed Images to ImgBB ──────────────────────────────────
+    log(`  Uploading ${compressedPaths.length} compressed images to ImgBB...`);
+    const publicUrls = await uploadImages(compressedPaths);
     log(`  ImgBB URLs generated: ${publicUrls.length}`);
 
     // ── 5. Schedule to Meta Graph API ─────────────────────────────────────────
