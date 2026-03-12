@@ -1,0 +1,36 @@
+# ── Secrets & credentials (CRITICAL — never commit) ──────────
+.env
+.env.*
+*.env
+credentials.json
+token.json
+token_*.json
+*_credentials.json
+*_refresh_token*
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+antigravity.log
+
+# ── Node ─────────────────────────────────────────────────────
+node_modules/
+.npm
+package-lock.json
+npm-debug.log*
+
+# ── OS ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor ───────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Misc ─────────────────────────────────────────────────────
+tmp/
+temp/

@@ -1,0 +1,20 @@
+{
+  "name": "sol-studio-scheduler",
+  "version": "2.1.0",
+  "description": "Sol Studio Automation — Content scheduling + Autonomous Creative Agent",
+  "private": true,
+  "scripts": {
+    "test:timezone": "node scripts/timezone-helper.js --test",
+    "test:assembler": "node scripts/agent-content-assembler.js --dry-run",
+    "test:qa": "node scripts/agent-qa-and-schedule.js --dry-run",
+    "test:posted": "node scripts/check-posted-status.js --dry-run",
+    "test:weekly": "node scripts/weekly-report.js --dry-run",
+    "test:archive": "node scripts/archive-published.js --dry-run",
+    "test:upload": "node scripts/upload-for-posting.js --folder \"%DRIVE_REVIEW_PATH%\" --dry-run"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "dotenv": "^17.3.1",
+    "sharp": "^0.33.4"
+  }
+}

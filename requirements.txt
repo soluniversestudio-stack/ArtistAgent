@@ -1,0 +1,29 @@
+# AI Providers (anthropic is optional — Ollama uses built-in urllib, no package needed)
+anthropic>=0.25.0
+openai>=1.30.0
+
+# Google APIs (Gmail, Sheets, Drive)
+google-auth>=2.29.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.127.0
+
+# Web Search
+tavily-python>=0.3.0
+
+# Web server for Dashboard
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Data & Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0
+schedule>=1.2.0
+notion-client>=2.2.0
+rich>=13.7.0
+click>=8.1.7
+pydantic>=2.7.0
+jinja2>=3.1.4
+
+# Date handling
+python-dateutil>=2.9.0

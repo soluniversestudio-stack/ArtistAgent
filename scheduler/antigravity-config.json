@@ -1,0 +1,140 @@
+{
+    "$schema": "https://antigravity.dev/schema/config.json",
+    "version": "1.0",
+    "projectName": "sol-studio-automation",
+    "logFile": "G:\\My Drive\\Sophia Sol Studio\\00_Report\\antigravity.log",
+    "security": {
+        "allowedScriptPaths": [
+            "c:\\ArtistAgent\\scheduler\\scripts\\"
+        ],
+        "envFile": "c:\\ArtistAgent\\scheduler\\.env",
+        "readOnlyWatcher": true,
+        "noExternalFileUpload": true
+    },
+    "watchers": [
+        {
+            "id": "scheduled-watcher",
+            "path": "G:\\My Drive\\Sophia Sol Studio\\02_Project\\_Scheduled\\",
+            "recursive": true,
+            "events": [
+                "add"
+            ],
+            "debounceMs": 3000,
+            "triggers": [
+                "post-to-instagram"
+            ],
+            "comment": "Watches _Scheduled/ for newly staged post folders — triggers posting scripts"
+        }
+    ],
+    "jobs": [
+        {
+            "id": "agent-qa-and-schedule",
+            "name": "QA and Schedule Posts",
+            "script": "c:\\ArtistAgent\\scheduler\\scripts\\agent-qa-and-schedule.js",
+            "trigger": {
+                "cron": "30 18 * * 3"
+            },
+            "cronTimezone": "UTC",
+            "cronComment": "Every Wednesday 08:30 HST = 18:30 UTC Wednesday",
+            "description": "Reads Approved rows from Notion, verifies asset files, creates _Scheduled folders, writes post_brief.json, updates Notion to Scheduled",
+            "notionCalendarEvent": {
+                "title": "QA & Schedule — Completed — {date}",
+                "durationMinutes": 15
+            },
+            "onError": {
+                "log": true,
+                "notionErrorPage": true
+            }
+        },
+        {
+            "id": "post-to-instagram",
+            "name": "Post to Instagram",
+            "script": "c:\\ArtistAgent\\scheduler\\scripts\\post-to-instagram.js",
+            "trigger": {
+                "watcher": "scheduled-watcher",
+                "cron": "0 19 * * *"
+            },
+            "cronTimezone": "UTC",
+            "cronComment": "Daily 09:00 HST = 19:00 UTC — also triggered by file drop into _Scheduled/",
+            "platform": "instagram",
+            "description": "Reads Scheduled+Instagram rows from Notion, checks time, posts via Meta Graph API",
+            "notionCalendarEvent": {
+                "title": "Posted to Instagram — {date}",
+                "durationMinutes": 15
+            },
+            "onError": {
+                "log": true,
+                "notionErrorPage": true
+            }
+        },
+        {
+            "id": "post-to-threads",
+            "name": "Post to Threads",
+            "script": "c:\\ArtistAgent\\scheduler\\scripts\\post-to-threads.js",
+            "enabled": false,
+            "comment": "ON HOLD — not wired yet. Enable when Threads posting is ready.",
+            "trigger": {
+                "cron": "15 19 * * *"
+            },
+            "cronTimezone": "UTC"
+        },
+        {
+            "id": "refresh-token",
+            "name": "Refresh FB Token",
+            "script": "c:\\ArtistAgent\\scheduler\\scripts\\refresh-token.js",
+            "trigger": {
+                "cron": "0 18 * * 0"
+            },
+            "cronTimezone": "UTC",
+            "cronComment": "Every Sunday 08:00 HST = 18:00 UTC",
+            "notionCalendarEvent": {
+                "title": "FB Token Refresh — Completed — {date}",
+                "durationMinutes": 15
+            },
+            "onError": {
+                "log": true,
+                "notionErrorPage": true
+            }
+        },
+        {
+            "id": "weekly-report",
+            "name": "Weekly Report",
+            "script": "c:\\ArtistAgent\\scheduler\\scripts\\weekly-report.js",
+            "trigger": {
+                "cron": "0 6 * * 1"
+            },
+            "cronTimezone": "UTC",
+            "cronComment": "Every Monday 06:00 UTC = Sunday 20:00 HST",
+            "notionCalendarEvent": {
+                "title": "Weekly Report — {date}",
+                "durationMinutes": 15
+            },
+            "onError": {
+                "log": true,
+                "notionErrorPage": true
+            }
+        },
+        {
+            "id": "archive-published",
+            "name": "Archive Published Files",
+            "script": "c:\\ArtistAgent\\scheduler\\scripts\\archive-published.js",
+            "trigger": {
+                "cron": "0 * * * *"
+            },
+            "cronTimezone": "UTC",
+            "cronComment": "Every hour — moves Posted _Scheduled folders into _Published",
+            "notionFilter": {
+                "property": "Status",
+                "value": "Posted"
+            },
+            "notionCalendarEvent": {
+                "title": "Archive Published — Completed — {date}",
+                "durationMinutes": 15
+            },
+            "onError": {
+                "log": true,
+                "notionErrorPage": true
+            }
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+# ============================================================
+#  ArtistAgent — .gitignore
+#  Protects sensitive data from being committed to Git/OpenClaw
+# ============================================================
+
+# --- Environment & Secrets (CRITICAL — never commit) ---
+.env
+.env.*
+*.env
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.json.enc
+
+# --- Google OAuth tokens & credentials ---
+token.json
+token_*.json
+client_secret*.json
+google_credentials.json
+*_credentials.json
+*_refresh_token*
+
+# --- API keys & config backups ---
+api_keys.txt
+config.local.*
+
+# --- Data (may contain personal info) ---
+data/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+venv/
+.venv/
+env/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs & temp ---
+*.log
+logs/
+tmp/
+temp/
+
+# --- Node (for OpenClaw) ---
+node_modules/
+.npm
+package-lock.json
+
+# --- OpenClaw local data (memory may contain personal context) ---
+.openclaw/memory/
+.openclaw/logs/
+.openclaw/cache/
