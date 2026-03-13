@@ -42,6 +42,11 @@ async function debugMeta() {
         const perms = await metaGet("/me/permissions");
         log(`Current Scopes: ${JSON.stringify(perms.data?.map(p => `${p.permission}: ${p.status}`))}`);
 
+        // 2.5 Check Pages (me/accounts)
+        log("2.5 Testing /me/accounts endpoint...");
+        const pages = await metaGet("/me/accounts?fields=id,name,instagram_business_account");
+        log(`Pages found: ${JSON.stringify(pages.data?.map(p => ({ id: p.id, name: p.name, ig: p.instagram_business_account?.id })))}`);
+
         // 3. Check IG Account visibility
         log(`3. Testing visibility of IG Account ${igUserId}...`);
         const ig = await metaGet(`/${igUserId}?fields=username,name`);
