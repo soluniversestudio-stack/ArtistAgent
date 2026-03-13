@@ -11,8 +11,7 @@
  *   3. Scans Google Drive folders for candidate images
  *   4. Scores and selects best images using image-selector-ai.js
  *   5. Crops images to 4:5 (posts) or 9:16 (reels) using smart-crop-autonomous.js
- *   6. Creates review package folder with AI_REASONING.md via review-package-generator.js
- *   7. Updates Notion: Status → "Schedulling", Review Folder Path filled
+ *   6. Updates Notion: Status → "Scheduling", Link to Meta filled
  *
  * Also handles Status = "Rejected" (re-runs with feedback from Note to Agent)
  *
@@ -34,6 +33,7 @@ dotenv.config({ path: ENV_PATH });
 // ─── Local modules ─────────────────────────────────────────────────────────────
 const { isWithinActiveHours, getTimezoneLabel, getLocalTimeString } = require("./timezone-helper");
 const { selectImages, scanForImages }                               = require("./image-selector-ai");
+const { cropBatch }                                                 = require("./smart-crop-autonomous");
 const { uploadImages }                                               = require("./upload-for-posting");
 const { scheduleToMeta }                                             = require("./post-to-instagram");
 const os                                                             = require("os");
@@ -201,39 +201,42 @@ async function processRow(row, results) {
     const confidence = Math.round(avgScore * 100);
 
     if (DRY_RUN) {
-        console.log(`\n   📐 Would compress and upload ${allSelected.length} images to ImgBB`);
+        console.log(`   📐 Would crop, compress and upload ${allSelected.length} images to ImgBB`);
         console.log(`   📅 Would schedule to Meta API for ${schedDate}`);
-        console.log(`   🔄 Would update Notion: Status → "Schedulling", Link to Meta → (url)`);
+        console.log(`   🔄 Would update Notion: Status → "Scheduling", Link to Meta → (url)`);
         results.assembled++;
         return;
     }
 
-    // ── 3. Compress Images to Temporary Directory ─────────────────────────────
-    log(`  Compressing ${allSelected.length} images to reduce upload size...`);
-    const compressedDir = fs.mkdtempSync(path.join(os.tmpdir(), "sol-compress-"));
-    const compressedPaths = [];
+    // ── 3. Smart Crop & Compress ─────────────────────────────────────────────
+    log(`  Cropping and Compressing ${allSelected.length} images...`);
+    const processedDir = fs.mkdtempSync(path.join(os.tmpdir(), "sol-process-"));
     
+    // Step A: Crop
+    const cropResults = await cropBatch(allSelected, processedDir, ratio);
+    const croppedPaths = cropResults.map(r => r.cropped).filter(Boolean);
+    
+    if (croppedPaths.length === 0) {
+        throw new Error("Cropping failed for all images.");
+    }
+
+    // Step B: Final Compress/Optimize for Meta
+    log(`  Optimizing ${croppedPaths.length} images for Meta upload...`);
+    const finalPaths = [];
     const sharp = require("sharp");
 
-    for (const img of allSelected) {
-        const ext = path.extname(img.path);
-        const basename = path.basename(img.path, ext);
-        // Force .jpg extension for output
-        const destPath = path.join(compressedDir, `${basename}_compressed.jpg`);
-        
-        await sharp(img.path)
-            // Limit max dimensions to 2160px on longest side to keep file size small
-            // withoutEnlargement prevents upscaling smaller images
+    for (const cropPath of croppedPaths) {
+        const destPath = cropPath.replace(".jpg", "_opt.jpg");
+        await sharp(cropPath)
             .resize(2160, 2160, { fit: "inside", withoutEnlargement: true })
             .jpeg({ quality: 82, progressive: true })
             .toFile(destPath);
-            
-        compressedPaths.push(destPath);
+        finalPaths.push(destPath);
     }
 
-    // ── 4. Upload Compressed Images to ImgBB ──────────────────────────────────
-    log(`  Uploading ${compressedPaths.length} compressed images to ImgBB...`);
-    const publicUrls = await uploadImages(compressedPaths);
+    // ── 4. Upload Optimized Images to ImgBB ───────────────────────────────────
+    log(`  Uploading ${finalPaths.length} optimized images to ImgBB...`);
+    const publicUrls = await uploadImages(finalPaths);
     log(`  ImgBB URLs generated: ${publicUrls.length}`);
 
     // ── 5. Schedule to Meta Graph API ─────────────────────────────────────────
@@ -256,7 +259,7 @@ async function processRow(row, results) {
 
     // ── 6. Update Notion ──────────────────────────────────────────────────────
     const notionProps = {
-        "Status":              { status: { name: "Schedulling" } },
+        "Status":              { status: { name: "Scheduling" } },
         "Link to Meta":        { url: metaPermalink },
         "AI Reasoning":        { rich_text: [{ text: { content: buildReasoningSummary(allSelected) } }] },
         "AI Confidence":       { number: confidence }
@@ -268,7 +271,7 @@ async function processRow(row, results) {
     }
 
     await notionPatch(`/pages/${rowId}`, { properties: notionProps });
-    log(`  Notion → Status=Schedulling, Link to Meta=${metaPermalink}`);
+    log(`  Notion → Status=Scheduling, Link to Meta=${metaPermalink}`);
     console.log(`✅ Scheduled successfully: "${title}" → ${metaPermalink} (${allSelected.length} images)`);
     results.assembled++;
 }
