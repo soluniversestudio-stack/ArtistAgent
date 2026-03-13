@@ -1,0 +1,51 @@
+# ============================================================
+#  ARTIST INTELLIGENCE AGENT — SETUP TEMPLATE
+#  Copy this file to .env on your new computer and fill values.
+# ============================================================
+
+# --- AI Backend ---
+AI_BACKEND=ollama
+ANTHROPIC_API_KEY=
+OPENAI_API_KEY=
+
+# --- Ollama ---
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=phi3:mini
+OLLAMA_EXE=
+
+# --- Search ---
+TAVILY_API_KEY=
+
+# --- Google (Gmail + Sheets + Calendar) ---
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://localhost:8080
+GMAIL_REFRESH_TOKEN_STUDIO=
+GOOGLE_SHEETS_ARTWORK_ID=
+GOOGLE_SHEETS_CRM_ID=
+
+# --- Notion (All Databases) ---
+NOTION_TOKEN=
+NOTION_ARTWORKS_DB_ID=c7eb7db8624d4a7b886de312eedfc807
+NOTION_STUDIO_LOGS_DB_ID=d755068672ef82e8869001236bbd9fc7
+NOTION_CONTENT_CALENDAR_DB_ID=359039a67fc342a4a3c64a356541132b
+NOTION_RESIDENCY_DB_ID=5b22b57f3c60413690db39941fca38a5
+NOTION_OPENCALLS_DB_ID=77d7a81faece47f1960ac56a5f8ae55f
+NOTION_EVENTS_DB_ID=667cea93bd0f4f929f2c946034dd0b1e
+NOTION_CONTACTS_DB_ID=efa02ad4bbb8452bbf848992e632162b
+NOTION_OPERATIONS_DB_ID=0fa006ed8fa2438393746b39bab4789b
+NOTION_PROJECTS_DB_ID=
+
+# --- Scheduler / Social Posting ---
+FB_ACCESS_TOKEN=
+IG_USER_ID=17841444855543301
+DRIVE_FIELD_PHOTOS_PATH=G:\My Drive\Sophia Sol Studio\02_Project\Field Photos
+DRIVE_ARTWORK_2026_PATH=G:\My Drive\Sophia Sol Studio\02_Project
+READY_TO_POST_PATH=G:\My Drive\Sophia Sol Studio\08_Contents\Ready to Post
+PUBLISHED_PATH=G:\My Drive\Sophia Sol Studio\08_Contents\_Published
+LOG_FILE=G:\My Drive\Sophia Sol Studio\00_Report\antigravity.log
+
+# --- Artist Profile ---
+ARTIST_NAME=Sophia
+ARTIST_EMAIL=sol.universe.studio@gmail.com
+ARTIST_TIMEZONE=Pacific/Honolulu
