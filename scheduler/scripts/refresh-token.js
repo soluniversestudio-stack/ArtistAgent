@@ -12,7 +12,7 @@
  *   node refresh-token.js --dry-run   ← prints what it WOULD do, no writes
  *
  * Refresh endpoint:
- *   POST https://graph.facebook.com/v25.0/oauth/access_token
+ *   POST https://graph.facebook.com/v21.0/oauth/access_token
  *   ?grant_type=fb_exchange_token
  *   &client_id={FB_APP_ID}
  *   &client_secret={FB_APP_SECRET}
@@ -74,7 +74,7 @@ if (DRY_RUN) {
 
         // ── 2. Refresh token via Graph API ────────────────────────────────────────
         if (DRY_RUN) {
-            console.log("  WOULD call: POST https://graph.facebook.com/v25.0/oauth/access_token");
+            console.log("  WOULD call: POST https://graph.facebook.com/v21.0/oauth/access_token");
             console.log(`  WOULD send: client_id=${FB_APP_ID}, fb_exchange_token=***`);
             console.log("  WOULD receive: new access_token + expires_in");
             const futureExpiry = new Date(today);
@@ -92,7 +92,7 @@ if (DRY_RUN) {
         });
 
         const result = await httpsGet(
-            `https://graph.facebook.com/v25.0/oauth/access_token?${params.toString()}`
+            `https://graph.facebook.com/v21.0/oauth/access_token?${params.toString()}`
         );
 
         if (result.error) {

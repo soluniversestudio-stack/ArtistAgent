@@ -86,7 +86,7 @@ Register-SolTask `
     -Name        "SolStudio Content Assembler" `
     -ScriptFile  "agent-content-assembler.js" `
     -Triggers    @($assemblerTrigger) `
-    -Description "Handles Asset ready + Rejected rows: parse instruction, scan Drive, select images, crop, create review package"
+    -Description "Handles Asset ready + Rejected rows: parse instruction, scan Drive, select images, create review package"
 
 # ── 2. Approve to Schedule — every 30 min, 8 AM – midnight local
 #       Handles: "Approved" → "Scheduled"
@@ -144,7 +144,7 @@ Get-ScheduledTask | Where-Object { $_.TaskName -like "SolStudio*" } |
 Write-Host "Test commands:"
 Write-Host "  node `"$scriptsDir\timezone-helper.js`" --test"
 Write-Host "  node `"$scriptsDir\agent-content-assembler.js`" --dry-run"
-Write-Host "  node `"$scriptsDir\agent-qa-and-schedule.js`" --dry-run"
+Write-Host "  node `"$scriptsDir\agent-approve-to-schedule.js`" --dry-run"
 Write-Host "  node `"$scriptsDir\check-posted-status.js`" --dry-run"
 Write-Host ""
 Write-Host "Manual trigger:"

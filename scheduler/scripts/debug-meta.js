@@ -35,7 +35,7 @@ async function debugMeta() {
         // 1. Check Me
         log("1. Testing /me endpoint...");
         const me = await metaGet("/me?fields=id,name");
-        log(`Result: ${JSON.stringify(me)}`);
+        log(`Me Result: ${JSON.stringify(me)}`);
 
         // 2. Check Permissions
         log("2. Testing /me/permissions endpoint...");
@@ -44,18 +44,28 @@ async function debugMeta() {
 
         // 2.5 Check Pages (me/accounts)
         log("2.5 Testing /me/accounts endpoint...");
-        const pages = await metaGet("/me/accounts?fields=id,name,instagram_business_account");
-        log(`Pages found: ${JSON.stringify(pages.data?.map(p => ({ id: p.id, name: p.name, ig: p.instagram_business_account?.id })))}`);
+        const pages = await metaGet("/me/accounts?fields=id,name,instagram_business_account,tasks,permitted_tasks");
+        log(`Raw Pages Result: ${JSON.stringify(pages)}`);
+        
+        if (pages.data && pages.data.length > 0) {
+            log(`Pages found: ${pages.data.length}`);
+            pages.data.forEach(p => {
+                log(` - Page: ${p.name} (${p.id}) | IG: ${p.instagram_business_account?.id || "NONE"}`);
+            });
+        } else {
+            log("⚠️ No Pages returned from /me/accounts. This token might not have been granted access to any specific pages during the OAuth flow.");
+        }
 
-        // 3. Check IG Account visibility
-        log(`3. Testing visibility of IG Account ${igUserId}...`);
-        const ig = await metaGet(`/${igUserId}?fields=username,name`);
-        log(`Result: ${JSON.stringify(ig)}`);
+        // 3. Check IG Account visibility directly
+        log(`3. Testing visibility of IG Account ${igUserId} directly...`);
+        const ig = await metaGet(`/${igUserId}?fields=username,name,id,account_type`);
+        log(`IG Result: ${JSON.stringify(ig)}`);
         
         log("=== Meta Token Debug END ===");
 
     } catch (err) {
         log(`❌ Debug step failed: ${err.message}`);
+        if (err.response) log(`   Response: ${JSON.stringify(err.response)}`);
     }
 }
 
